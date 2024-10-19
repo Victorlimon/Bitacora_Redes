@@ -1,0 +1,110 @@
+****************************** MAT ESTATICO **************************
+
+# Acceder al modo de configuración global
+Router> enable
+Router# configure terminal
+
+# Configurar la interfaz interna (la que tiene las IP privadas)
+Router(config)# interface gigabitEthernet 0/0
+Router(config-if)# ip address 192.168.1.1 255.255.255.0
+Router(config-if)# no shutdown
+Router(config-if)# ip nat inside
+Router(config-if)# exit
+
+# Configurar la interfaz externa (la que tiene la IP pública)
+Router(config)# interface gigabitEthernet 0/1
+Router(config-if)# ip address 200.87.100.1 255.255.255.0
+Router(config-if)# no shutdown
+Router(config-if)# ip nat outside
+Router(config-if)# exit
+
+# Configurar NAT estático (mapea una IP privada a una IP pública)
+Router(config)# ip nat inside source static 192.168.1.10 200.87.100.10
+
+# Guardar la configuración
+Router(config)# exit
+Router# write memory
+
+
+************************** NAT DINAMICO **************************
+
+# Acceder al modo de configuración global
+Router> enable
+Router# configure terminal
+
+# Configurar la interfaz interna
+Router(config)# interface gigabitEthernet 0/0
+Router(config-if)# ip address 192.168.1.1 255.255.255.0
+Router(config-if)# no shutdown
+Router(config-if)# ip nat inside
+Router(config-if)# exit
+
+# Configurar la interfaz externa
+Router(config)# interface gigabitEthernet 0/1
+Router(config-if)# ip address 200.87.100.1 255.255.255.0
+Router(config-if)# no shutdown
+Router(config-if)# ip nat outside
+Router(config-if)# exit
+
+# Crear un pool de direcciones públicas para NAT dinámico
+Router(config)# ip nat pool MI_POOL 200.87.100.20 200.87.100.30 netmask 255.255.255.0
+
+# Permitir que las IP internas utilicen el pool de NAT dinámico
+Router(config)# access-list 1 permit 192.168.1.0 0.0.0.255
+Router(config)# ip nat inside source list 1 pool MI_POOL
+
+# Guardar la configuración
+Router(config)# exit
+Router# write memory
+
+
+********************* PAT - NAT SOBRECARGADO ***************************
+
+# Acceder al modo de configuración global
+Router> enable
+Router# configure terminal
+
+# Configurar la interfaz interna
+Router(config)# interface gigabitEthernet 0/0
+Router(config-if)# ip address 192.168.1.1 255.255.255.0
+Router(config-if)# no shutdown
+Router(config-if)# ip nat inside
+Router(config-if)# exit
+
+# Configurar la interfaz externa
+Router(config)# interface gigabitEthernet 0/1
+Router(config-if)# ip address 200.87.100.1 255.255.255.0
+Router(config-if)# no shutdown
+Router(config-if)# ip nat outside
+Router(config-if)# exit
+
+# Crear una lista de acceso que permita las IP privadas que usarán PAT
+Router(config)# access-list 1 permit 192.168.1.0 0.0.0.255
+
+# Crear un pool de direcciones públicas para NAT dinámico
+Router(config)# ip nat pool POOL_PAT 200.88.200.6 200.88.200.6 netmask 255.255.255.248
+
+# Crear una lista de acceso que permita las IP privadas que usarán PAT
+Router(config)# ip access-list standard PAT
+RF(config-std-nacl)# permit 172.16.100.0 0.0.3.255
+RF(config-std-nacl)# deny any
+
+# Configurar PAT sobre una dirección IP pública específica (sobrecarga)
+Router(config)# ip nat inside source list PAT pool POOL_PAT overload
+
+
+# Guardar la configuración
+Router(config)# exit
+Router# write memory
+
+******************** REVISAR LA CONFIGURACION *********************
+
+# Mostrar las traducciones NAT activas
+Router# show ip nat translations
+
+# Mostrar estadísticas de NAT
+Router# show ip nat statistics
+
+
+
+

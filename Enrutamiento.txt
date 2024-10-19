@@ -1,0 +1,115 @@
+******************************** ENRUTAMIENTO y REDISTRIBUCION EN IPv4 ************************
+# Configurar una puerta de enlace por defecto
+MiRouter(config)# ip route 0.0.0.0 0.0.0.0 serial0/0/0
+
+# Configuración de EIGRP
+Router(config)# router eigrp 1
+Router(config-router)# network 192.168.1.0 0.0.0.255
+Router(config-router)# no auto-summary
+Router(config-router)# exit
+
+# Configuración de RIP
+Router(config)# router rip
+Router(config-router)# version 2
+Router(config-router)# network 192.168.2.0
+Router(config-router)# no auto-summary
+Router(config-router)# exit
+
+# Configuración de OSPF
+Router(config)# router ospf 1
+Router(config-router)# network 192.168.3.0 0.0.0.255 area 0
+Router(config-router)# exit
+
+# Redistribuir rutas de EIGRP a RIP
+Router(config)# router rip
+Router(config-router)# redistribute eigrp 1 metric 2
+Router(config-router)# exit
+
+# Redistribuir rutas de RIP a EIGRP
+Router(config)# router eigrp 1
+Router(config-router)# redistribute rip metric 10000 100 255 1 1500
+Router(config-router)# exit
+
+# Redistribuir rutas de OSPF a EIGRP
+Router(config)# router eigrp 1
+Router(config-router)# redistribute ospf 1 metric 10000 100 255 1 1500
+Router(config-router)# exit
+
+# Redistribuir rutas de EIGRP a OSPF
+Router(config)# router ospf 1
+Router(config-router)# redistribute eigrp 1 subnets
+Router(config-router)# exit
+
+# Redistribuir rutas de RIP a OSPF
+Router(config)# router ospf 1
+Router(config-router)# redistribute rip subnets
+Router(config-router)# exit
+
+***********************************************************************************************
+
+
+****************************** ENRUTAMIENTO y REDISTRIBUCION EN IPv6 ***************************
+# Habilitar IPv6 en el router
+Router(config)# ipv6 unicast-routing
+
+# Configuración de EIGRP para IPv6
+Router(config)# ipv6 router eigrp 1
+Router(config-rtr)# eigrp router-id 2.2.2.2
+Router(config-rtr)# no shutdown
+Router(config)# interface gigabitEthernet 0/0
+Router(config-if)# ipv6 address 2001:db8:1::1/64
+Router(config-if)# ipv6 eigrp 1
+Router(config-if)# no shutdown
+Router(config-if)# exit
+
+# Configuración de RIPng para IPv6
+Router(config)# ipv6 router rip RIPng
+Router(config)# interface gigabitEthernet 0/1
+Router(config-if)# ipv6 address 2001:db8:2::1/64
+Router(config-if)# ipv6 rip RIPng enable
+Router(config-if)# no shutdown
+Router(config-if)# exit
+
+# Configuración de OSPFv3 para IPv6
+Router(config)# ipv6 router ospf 1
+Router(config-rtr)# router-id 2.2.2.2
+Router(config)# interface gigabitEthernet 0/2
+Router(config-if)# ipv6 address 2001:db8:3::1/64
+Router(config-if)# ipv6 ospf 1 area 0
+Router(config-if)# no shutdown
+Router(config-if)# exit
+
+# Enrutamiento estático
+Router(config)# ipv6 route 2001:db8:4::/64 2001:db8:3::2
+
+# Redistribuir rutas de EIGRP a RIPng
+Router(config)# ipv6 router rip RIPng
+Router(config-rtr)# redistribute eigrp 1
+Router(config-rtr)# exit
+
+# Redistribuir rutas de RIPng a EIGRP
+Router(config)# ipv6 router eigrp 1
+Router(config-rtr)# redistribute rip RIPng
+Router(config-rtr)# exit
+
+# Redistribuir rutas de OSPFv3 a EIGRP
+Router(config)# ipv6 router eigrp 1
+Router(config-rtr)# redistribute ospf 1
+Router(config-rtr)# exit
+
+# Redistribuir rutas de EIGRP a OSPFv3
+Router(config)# ipv6 router ospf 1
+Router(config-rtr)# redistribute eigrp 1
+Router(config-rtr)# exit
+
+# Redistribuir rutas de RIPng a OSPFv3
+Router(config)# ipv6 router ospf 1
+Router(config-rtr)# redistribute rip RIPng
+Router(config-rtr)# exit
+
+# Redistribuir rutas de OSPFv3 a RIPng
+Router(config)# ipv6 router rip RIPng
+Router(config-rtr)# redistribute ospf 1
+Router(config-rtr)# exit
+
+

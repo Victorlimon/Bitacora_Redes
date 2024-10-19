@@ -1,0 +1,91 @@
+************************ ROUTER DHCP SERVER IPv4 ***********************
+
+Router> enable
+Router# configure terminal
+
+# Definir el pool DHCP
+Router(config)# ip dhcp pool LAN1
+Router(dhcp-config)# network 192.168.1.0 255.255.255.0
+
+# Definir la puerta de enlace predeterminada (gateway)
+Router(dhcp-config)# default-router 192.168.1.1
+
+# Definir el DNS
+Router(dhcp-config)# dns-server 8.8.8.8 8.8.4.4
+
+# Definir el tiempo de lease (por defecto 24h, en segundos)
+Router(dhcp-config)# lease 1 12 0 0
+
+# Opcional: Definir el dominio
+Router(dhcp-config)# domain-name example.com
+
+# Salir del modo DHCP
+Router(dhcp-config)# exit
+
+# Opcional: Excluir direcciones IP del pool (por ejemplo, para servidores estáticos)
+Router(config)# ip dhcp excluded-address 192.168.1.1 192.168.1.10
+
+# Verificación del estado del servidor DHCP
+Router(config)# do show ip dhcp binding
+Router(config)# do show ip dhcp pool
+
+
+# Reserva de IP para un dispositivo con una MAC específica
+Router(config)# ip dhcp pool RESERVED
+Router(dhcp-config)# host 192.168.1.50 255.255.255.0
+Router(dhcp-config)# client-identifier 0100.1234.5678.9A
+Router(dhcp-config)# default-router 192.168.1.1
+Router(dhcp-config)# dns-server 8.8.8.8
+Router(dhcp-config)# exit
+
+
+*****************************************************************************************
+
+
+*********************************** DHCP SERVER IPv6 *************************************
+
+---------------------- ROUTER DHCP SERVER CON ESTADO IPv6 -----------------------------
+
+Router> enable
+Router# configure terminal
+
+# Definir el pool DHCPv6 sin estado
+Router(config)# ipv6 dhcp pool DHCPv6-STATELESS
+Router(config-dhcpv6)# dns-server 2001:4860:4860::8888 2001:4860:4860::8844
+Router(config-dhcpv6)# domain-name example.com
+Router(config-dhcpv6)# exit
+
+# Configurar la interfaz para DHCPv6 sin estado
+Router(config)# interface gigabitEthernet 0/1
+Router(config-if)# ipv6 address 2001:db8:2::1/64
+Router(config-if)# ipv6 nd other-config-flag
+Router(config-if)# ipv6 dhcp server DHCPv6-STATELESS
+Router(config-if)# no shutdown
+Router(config-if)# exit
+
+
+----------------------------- ROUTER DHCP SERVER SIN ESTADO IPv6 -----------------------------
+
+Router> enable
+Router# configure terminal
+
+# Definir el pool DHCPv6 sin estado
+Router(config)# ipv6 dhcp pool DHCPv6-STATELESS
+Router(config-dhcpv6)# dns-server 2001:4860:4860::8888 2001:4860:4860::8844
+Router(config-dhcpv6)# domain-name example.com
+Router(config-dhcpv6)# exit
+
+# Configurar la interfaz para DHCPv6 sin estado
+Router(config)# interface gigabitEthernet 0/1
+Router(config-if)# ipv6 address 2001:db8:2::1/64
+Router(config-if)# ipv6 nd other-config-flag
+Router(config-if)# ipv6 dhcp server DHCPv6-STATELESS
+Router(config-if)# no shutdown
+Router(config-if)# exit
+
+***********************************************************************************************
+
+
+
+
+
